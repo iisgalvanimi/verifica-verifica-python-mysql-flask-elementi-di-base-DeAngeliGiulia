@@ -66,5 +66,30 @@ def create_animal():
             cursor.close()
             conn.close()
 
+
+@app.route('/dati/elimina/<int:id>', methods=['DELETE'])
+def delete_animal(id):
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor()
+
+        query = "DELETE FROM Pesci WHERE Id = %s"
+        cursor.execute(query, (id,))
+        conn.commit()
+
+        if cursor.rowcount == 0:
+            return jsonify({"errore": "Animale non trovato"}), 404
+
+        return jsonify({"successo": "Animale eliminato"}), 200
+
+    except Error as e:
+        print("Errore nella connessione al database:", e)
+        return jsonify({"errore": "Impossibile eliminare l'animale nel database"}), 500
+
+    finally:
+        if conn.is_connected():
+            cursor.close()
+            conn.close()
+
 if __name__ == '__main__':
     app.run(debug=True)
